@@ -135,7 +135,7 @@ class MazeState:
         """
         #0 1 2 3
         #cost L,R,D,U -> 1 mud->2
-        def costofmove(arr: np.ndarray):
+        
             
 
         c = 0        
