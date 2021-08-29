@@ -1,0 +1,28 @@
+ x,y = find_agent(state.grid)
+#         agent = state.grid
+#         print(agent)
+#         if state.grid[x][y] == 
+#         # print(len(state.actions))
+#         # print(state.actions[0])
+
+#         clone_grid = np.array(state.grid)
+#         #check action is possible
+#         # if state.actions[0] == 'Left':
+#         #     print('L')
+#         #wall
+#         # else:
+#         return None
+
+temp_grid.flags.writeable = False
+        new_state = MazeState(temp_grid)
+        # print(new_state.grid)
+        return new_state
+
+         -  0: ' ', empty (passable)
+    -  1: '#', wall (not passable)
+    -  2: '^', agent is facing up (north)
+    -  3: '>', agent is facing right (east)
+    -  4: 'v', agent is facing down (south)
+    -  5: '<', agent is facing left (west)
+    -  6: 'G', goal
+    -  7: '~', mud (passable, but cost more)
