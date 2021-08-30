@@ -1,11 +1,11 @@
 """This module contains classes and function to solve a pathfinding problem.
 
 Author:
-    -
-    -
+    -Sathita Intrachhote
+    -Thanapron Khunprom
 Student ID:
-    -
-    -
+    -6288014
+    -6288083
 """
 
 # %%
@@ -31,10 +31,6 @@ class MazeState:
     # Please replace it with your own actions
     # Note that an agent can only rotate and move forward.
     actions: Tuple[str] = ('up', 'right', 'down','left','move')
-    #   0: '^', agent is facing up (north)
-    # -  1: '>', agent is facing right (east)
-    # -  2: 'v', agent is facing down (south)
-    # -  3: '<', agent is facing left (west)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, MazeState):
@@ -62,7 +58,7 @@ class MazeState:
         This will create an array y as a copy of array x and then make
         array y immutable (cannot be changed, for safty).
         """
-        
+        #Current position of agent
         x,y = find_agent(state.grid)
         #print(x,y)
         clone_grid =  np.array(state.grid)       
@@ -91,29 +87,27 @@ class MazeState:
             return arr;   
 
 
-        if action == state.actions[4]: # move 
-            clone_grid = forward(clone_grid)    
-        elif action == state.actions[0]: # up
+        #check each action 
+        if action == 'move': # move 
+            clone_grid = forward(clone_grid)  
+        elif action == 'up': # up
             clone_grid[x][y] = 2
-            print(clone_grid[x][y])
-        elif action == state.actions[1]: # right
+           
+        elif action == 'right': # right
             clone_grid[x][y] = 3
-            print(clone_grid[x][y])    
-        elif action == state.actions[2]: # d
+                
+        elif action == 'down': # d
             clone_grid[x][y] = 4
-            print(clone_grid[x][y])
-        elif action == state.actions[3]: # l
-            clone_grid[x][y] = 5  
-            print(clone_grid[x][y])
-        
             
-             
+        elif action == 'left': # l
+            clone_grid[x][y] = 5  
+                      
         else:
              return None
-             
+
+         
         clone_grid.flags.writeable = False
         new_state = MazeState(clone_grid)
-        # print(new_state.grid)
         return new_state
  
        
@@ -121,8 +115,6 @@ class MazeState:
     # TODO 4: Create a cost function
     @classmethod
     def cost(cls, state: MazeState, action: str) -> float:
-        #instance = cls()
-
         """Return the cost of `action` for a given `state`.
 
         If the action is not possible, the cost should be infinite.
@@ -134,42 +126,81 @@ class MazeState:
         a mod position should cost more than walking into an empty position.
         """
         #0 1 2 3
-        #cost L,R,D,U -> 1 mud->2
-        
+        #cost L,R,D,U, move -> 1  -> mud->2
+        copy_grid =  np.array(state.grid)
+        x,y = find_agent(copy_grid)
+
+        #now let assume cost of move is 1.5 // mud is 2
+        #check the agent can move or not
+        def moveornot(a: np.ndarray):
+            x,y = find_agent(state.grid)
+             
+            if a[x-1][y] == 0 and (a[x][y] == 2 and a[x-1][y] != 1) :   #U             
+                return float(1)
+            elif  a[x-1][y] == 7 and (a[x][y] == 2 and a[x-1][y] != 1) : #U mud
+                return float(2)
+            elif a[x][y+1] == 0  and (a[x][y] == 3 and a[x][y+1] != 1) :  #R
+                return float(1) 
+            elif a[x][y+1] == 7 and (a[x][y] == 3 and a[x][y+1] != 1) :  #Rmud:
+                return float(2)
+            elif a[x+1][y] == 0 and (a[x][y] == 4 and a[x+1][y] != 1) :  #D  
+                return float(1)
+            elif a[x+1][y] == 7 and (a[x][y] == 4 and a[x+1][y] != 1) :  #Dmud
+                return float(2)
+            elif a[x][y-1] == 0  and (a[x][y] == 5 and a[x][y-1] != 1) : # L
+                return float(1)
+            elif a[x][y-1] == 7 and (a[x][y] == 5 and a[x][y-1] != 1) : # Lmud
+                return float(2)
             
+            else:
+                return float('inf')  
 
-        c = 0        
-        if action == state.actions[0]:
+        #C is a number of cost       
+        c = 0             
+        if (action == 'up' and state.grid[x][y] == 2) or (action == 'right' and state.grid[x][y] == 3) or (action == 'down' and state.grid[x][y] == 4) or (action == 'left' and state.grid[x][y] == 5)  :
+            c+=0
+        elif action == 'up' or action == 'right' or action == 'down' or action == 'left' :
             c+=1
-        elif action == state.actions[1]:
-            c+=1
-        elif action == state.actions[2]:
-            c+=1
-        elif action == state.actions[3]:
-            c+=1
-        # elif action == state.actions[4]:
-            #c = 
+        elif action == 'move':
+            c = moveornot(copy_grid)    
+        return float(c)
 
-        temp = c
-        
-        return float(temp)
 
     # TODO 5: Create a goal test function
     @classmethod
     def is_goal(cls, state: MazeState) -> bool:
         """Return True if `state` is the goal."""
-        return False
+        #point of goal
+        size = len(state.grid)
+        x,y = find_agent(state.grid)
+        #check
+        if state.grid[size-2][size-2] == state.grid[x][y]:
+            return True
+        else:
+            return False
 
     # TODO 6: Create a heuristic function
     @classmethod
     def heuristic(cls, state: MazeState) -> float:
         """Return a heuristic value for the state.
-
+        
         Note
         ---------------
         You may come up with your own heuristic function.
         """
-        return 0
+        #Manhattan
+        size = len(state.grid)
+        x,y = find_agent(state.grid)
+        ##Agent -> start x1 y1  Goal -> x2 y2
+        x1 = x
+        y1 = y
+        x2 = size-2      
+        y2 = size-2
+
+        hs = abs(x1-x2)+abs(y1-y2)
+
+        #print(x1,x2,y1,y2)
+        return float(hs)
 # %%
 
 @dataclass
@@ -191,6 +222,7 @@ def bfs_priority(node: TreeNode) -> float:
 
 # TODO: 7 Create a priority function for the greedy search
 def greedy_priority(node: TreeNode) -> float:
+
     return 0.0
 
 
